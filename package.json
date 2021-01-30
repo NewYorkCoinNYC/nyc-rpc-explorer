@@ -13,11 +13,11 @@
 		"nyc",
 		"blockchain"
 	],
-	"author": "Dan Janosik <dan@47.io>",
+	"author": "CryptoLover705",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/janoside/nyc-rpc-explorer.git"
+		"url": "git+https://github.com/NewYorkCoinNYC/nyc-rpc-explorer.git"
 	},
 	"dependencies": {
 		"async": "^3.2.0",

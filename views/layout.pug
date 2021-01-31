@@ -1,0 +1,265 @@
+doctype html
+html(lang="en")
+	head
+		meta(charset="utf-8")
+		base(href=config.baseUrl)
+		meta(name="csrf-token", content=csrfToken)
+		meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no")
+		
+		link(rel="stylesheet", href="./css/fonts.css", integrity="sha384-P92dMmtW9S5qrhDNNDr3kcdk00LJDKUy4Do4zFAO0+Br2b7iGHBWSVRgnnBsEpJS")
+		link(rel="stylesheet", href="./css/highlight.min.css", integrity="sha384-zhIsEafzyQWHSoMCQ4BfT8ZlRXQyIFwAHAJn32PNdsb8n6tVysGZSLpEEIvCskw4")
+
+
+		if (session.uiTheme && session.uiTheme == "dark")
+			link(rel="stylesheet", href="./css/bootstrap-dark.min.css", integrity="sha384-yHrdw+uFPe64ykHEYlYL2lmT0s+veKi1+lmxNqB3jVMOl9iX0h9xDLxcgtFtiV6M")
+			link(rel="stylesheet", href="./css/dark-touchups.css")
+				
+		else
+			link(rel="stylesheet", href="./css/bootstrap.min.css", integrity="sha384-QO/VzYasHIIVEtFdqGXHU2wxSK0pjVxX4mrM68IQhYpi0vTCM0ZIuV/KQbPZMfXg")
+
+		
+		link(rel='stylesheet', href='./css/styling.css')
+
+		link(rel="icon", type="image/png", href=("./img/logo/" + config.coin.toLowerCase() + ".png"))
+
+		include includes/debug-overrides.pug
+
+		block headContent
+			title Explorer
+		
+	body.bg-dark
+		nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+			div.container
+				a.navbar-brand(href="./")
+					span
+						if (coinConfig.logoUrlsByNetwork && coinConfig.logoUrlsByNetwork[activeBlockchain])
+							img.header-image(src=coinConfig.logoUrlsByNetwork[activeBlockchain], alt="logo")
+						else
+							img.header-image(src="./img/logo/nyc.svg", alt="logo")
+
+						if (coinConfig.siteTitlesByNetwork && coinConfig.siteTitlesByNetwork[activeBlockchain])
+							span #{coinConfig.siteTitlesByNetwork[activeBlockchain]}
+						else
+							span Newyorkcoin Explorer
+						
+				button.navbar-toggler.navbar-toggler-right(type="button", data-toggle="collapse", data-target="#navbarNav", aria-label="collapse navigation")
+					span.navbar-toggler-icon
+					
+				div.collapse.navbar-collapse(id="navbarNav")
+					if (rpcClient)
+						ul.navbar-nav.mr-auto
+							if (false)
+								li.nav-item
+									a.nav-link(href="./about")
+										span About
+
+							if (activeBlockchain != "main")
+								- var chainName = activeBlockchain == "test" ? "testnet" : activeBlockchain
+
+								li.nav-item
+									a.nav-link.text-warning(title=`Current node's chain: ${activeBlockchain}` data-toggle="tooltip") [#{chainName}]
+
+							if (config.siteTools)
+								li.nav-item.dropdown
+									a.nav-link.dropdown-toggle(href="javascript:void(0)", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") 
+										span  Tools
+									div.dropdown-menu.shadow(aria-label="Tools Items")
+										each itemIndex in config.site.prioritizedToolIdsList
+											- var item = config.siteTools[itemIndex];
+
+											a.dropdown-item(href=item.url)
+												i(class=item.fontawesome, style="width: 20px; margin-right: 10px;")
+												span  #{item.name}
+
+							if (config.site.header.dropdowns)
+								each dropdown, ddIndex in config.site.header.dropdowns
+									li.nav-item.dropdown
+										a.nav-link.dropdown-toggle(href="javascript:void(0)", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") 
+											span  #{dropdown.title}
+										div.dropdown-menu.shadow(aria-label=(dropdown.title + " Items"))
+											each dropdownLink in dropdown.links
+												a.dropdown-item(href=dropdownLink.url)
+													if (dropdownLink.imgUrl)
+														img(src=dropdownLink.imgUrl, style="width: 24px; height: 24px; margin-right: 8px;", alt=dropdownLink.name)
+													span  #{dropdownLink.name}
+
+							
+						form.form-inline.mr-3(method="post", action="./search")
+							input(type="hidden", name="_csrf", value=csrfToken)
+							div.input-group.input-group-sm
+								input.form-control.form-control-sm(type="text", name="query", placeholder="block height/hash, txid, address", value=(query))
+								div.input-group-append
+									button.btn.btn-primary(type="submit")
+										i.fas.fa-search
+
+						ul.navbar-nav
+							li.nav-item.dropdown
+								a.nav-link.dropdown-toggle(href="javascript:void(0)", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") 
+									span  Admin Tools
+								div.dropdown-menu.dropdown-menu-right.shadow(aria-label="Admin Tools Items")
+									a.dropdown-item(href="./admin") Admin Dashboard
+
+							li.nav-item.dropdown
+								a.nav-link.dropdown-toggle(href="javascript:void(0)", id="navbarDropdown", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") 
+									i.fas.fa-cog.mr-1 
+								div.dropdown-menu.dropdown-menu-right.shadow(aria-labelledby="navbarDropdown")
+									if (coinConfig.currencyUnits)
+										span.dropdown-header Currency Units
+										each item in coinConfig.currencyUnits
+											if (item.type == "native" || (config.queryExchangeRates && !config.privacyMode))
+												a.dropdown-item(href=("./changeSetting?name=currencyFormatType&value=" + item.values[0]))
+													each valueName in item.values
+														if (currencyFormatType == valueName)
+															i.fas.fa-check
+													span  #{item.name}
+
+									span.dropdown-header Theme
+									a.dropdown-item(href="./changeSetting?name=uiTheme&value=light")
+										if (session.uiTheme == "light" || session.uiTheme == "")
+											i.fas.fa-check
+										span  Light
+									a.dropdown-item(href="./changeSetting?name=uiTheme&value=dark")
+										if (session.uiTheme == "dark")
+											i.fas.fa-check
+										span  Dark
+		
+		if (host && port && !homepage && config.site.header.showToolsSubheader)
+			div.container.mb-2.pt-2.d-lg-block.d-none.border-top(id="sub-menu", style="")
+				ul.nav
+					each itemIndex in config.site.subHeaderToolsList
+						- var item = config.siteTools[itemIndex];
+						li.nav-item
+							a.nav-link.text-white.px-2.text-decoration-underline.mr-3(href=item.url)
+								i.mr-1(class=item.fontawesome)
+								span #{item.name}
+		
+		- var bodyBgColor = "#f8f9fa;";
+		if (session.uiTheme && session.uiTheme == "dark")
+			- bodyBgColor = "#0c0c0c;";
+
+		div.pb-4.pt-3.pt-md-4(style=("background-color: " + bodyBgColor))
+			div.container.px-2.px-sm-3
+				if (pageErrors && pageErrors.length > 0)
+					include includes/page-errors-modal.pug
+
+					div.alert.alert-danger
+						- var errorText = `This page encountered ${pageErrors.length.toLocaleString()} error${pageErrors.length == 1 ? "" : "s"}:`;
+						span.font-weight-bold #{errorText} 
+						a(href="javascript:void(0)", data-toggle="modal", data-target="#pageErrorsModal") Error details
+
+				if (userMessageMarkdown)
+					div.alert(class=(userMessageType ? `alert-${userMessageType}` : "alert-warning"), role="alert")
+						div.user-message-markdown
+							| !{markdown(userMessageMarkdown)}
+
+				if (userMessage)
+					div.alert(class=(userMessageType ? `alert-${userMessageType}` : "alert-warning"), role="alert")
+						span #{userMessage}
+							
+				
+				div(style="min-height: 500px;")
+					block content
+
+				div(style="margin-bottom: 30px;")
+
+				if (config.demoSite && !crawlerBot)
+					include ./includes/donation-modal.pug
+
+		footer.footer.border-top.border-primary.bg-dark.pt-3.pb-1.px-3.text-white(style="border-width: 5px !important;")
+			div.container
+				div.row
+					div.col-md-5
+						dl
+							dt Source
+							dd
+								a(href="https://github.com/NewYorkCoinNYC/nyc-rpc-explorer") github.com/janoside/nyc-rpc-explorer
+								
+								if (global.sourcecodeProjectMetadata)
+									div.mt-2
+										a.btn.btn-primary.btn-sm.mr-3.mb-1.text-decoration-none(href="https://github.com/NewYorkCoinNYC/nyc-rpc-explorer")
+											i.fas.fa-star.mr-2
+											span.mr-2 Star 
+											span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.stargazers_count}
+
+										a.btn.btn-primary.btn-sm.mr-3.mb-1.text-decoration-none(href="https://github.com/NewYorkCoinNYC/nyc-rpc-explorer/fork")
+											i.fas.fa-code-branch.mr-2
+											span.mr-2 Fork 
+											span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.forks_count}
+
+
+							
+							dt App Details
+							dd
+								span version: #{global.appVersion}
+								if (sourcecodeVersion)
+									br
+									span commit: 
+										a(href=("https://github.com/NewYorkCoinNYC/nyc-rpc-explorer/commit/" + sourcecodeVersion)) #{sourcecodeVersion}
+								
+								br
+								span released: #{sourcecodeDate}
+								span(style="font-size: 0.9em;")  (
+									a(href="./changelog") changelog
+									span )
+
+							if (config.demoSite)
+								dt Public Demos
+								dd
+									if (coinConfig.demoSiteUrl)
+										a(href=coinConfig.demoSiteUrl) #{coinConfig.demoSiteUrl}
+									else
+										a(href="https://explorer.nyc21.org") https://explorer.nyc21.org
+									
+									div.mt-2
+										- var demoSites = [];
+										- demoSites.push({url:"https://explorer.nyc21.org", logoUrl:"./img/logo/nyc.svg", title:"Newyorkcoin Explorer"});
+										- demoSites.push({url:"https://testnet.nyc21.org", logoUrl:"./img/logo/tnyc.svg", title:"Testnet Explorer"});
+										- demoSites.push({url:"https://signet.nyc21.org", logoUrl:"./img/logo/signet.svg", title:"Signet Explorer"});
+
+										each demoSite in demoSites
+											a.mr-2(href=demoSite.url, title=demoSite.title, data-toggle="tooltip")
+												img(src=demoSite.logoUrl, alt=demoSite.title)
+
+										a.mr-2(href="https://lnd-admin.nyc21.org", title="LND Admin", data-toggle="tooltip")
+											img(src=("./img/logo/lnd-admin.png"), style="width: 32px; height: 32px;", alt="LND Admin")
+
+					div.col-md-7.text-md-right
+						dl
+							dd
+								button.btn.btn-primary(type="button", data-toggle="modal", data-target="#exampleModalCenter")
+									i.fas.fa-heart.mr-2
+									span Support Project
+		
+		script(src="./js/jquery.min.js", integrity="sha384-vk5WoKIaW/vJyUAd9n/wmopsmNhiy+L2Z+SBxGYnUkunIxVxAv/UtMOhba/xskxh")
+		script(src="./js/popper.min.js", integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo")
+		script(src="./js/bootstrap.min.js", integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6")
+		script(defer, src="./js/fontawesome.min.js", integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7")
+
+		script(src="./js/highlight.min.js", integrity="sha384-xLrpH5gNLD6HMLgeDH1/p4FXigQ8T9mgNm+EKtCSXL0OJ5i1bnSi57dnwFuUMM9/")
+
+		script(src="./js/site.js", integrity="sha384-weZIj2Lafb8Qt+U1gwVB/HgL70q/yMT9Vo4NHBqqx67KMqGlMon2iv1WmZFiTKjw")
+		
+		script.
+			$(document).ready(function() {
+				$('[data-toggle="tooltip"]').tooltip();
+				$('[data-toggle="popover"]').popover({html:true, container:"body"});
+			});
+
+			hljs.initHighlightingOnLoad();
+
+		if (config.credentials.sentryUrl && config.credentials.sentryUrl.length > 0)
+			script(src="./js/sentry.min.js", integrity="sha384-da/Bo2Ah6Uw3mlhl6VINMblg2SyGbSnULKrukse3P5D9PTJi4np9HoKvR19D7zOL", crossorigin="anonymous")
+			script.
+				Sentry.init({ dsn: '#{config.credentials.sentryUrl}' });
+
+		if (config.credentials.googleAnalyticsTrackingId && config.credentials.googleAnalyticsTrackingId.trim().length > 0)
+			script(async, src=("https://www.googletagmanager.com/gtag/js?id=" + config.credentials.googleAnalyticsTrackingId))
+			script.
+				window.dataLayer = window.dataLayer || [];
+				function gtag(){dataLayer.push(arguments);}
+				gtag('js', new Date());
+
+				gtag('config', '#{config.credentials.googleAnalyticsTrackingId}');
+
+		
+		block endOfBody

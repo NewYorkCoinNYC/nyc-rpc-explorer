@@ -1,0 +1,255 @@
+extends layout
+
+block headContent
+	title Peers
+
+	link(rel="stylesheet", href="./css/dataTables.bootstrap4.min.css", integrity="sha384-EkHEUZ6lErauT712zSr0DZ2uuCmi3DoQj6ecNdHQXpMpFNGAQ48WjfXCE5n20W+R")
+
+	link(rel="stylesheet", href="./leaflet/leaflet.css", integrity="sha384-6wKUKNzA6h/S6gZ1lWQppeGaVXvK1AUAsEznGBghzlEu1fNcxJGYVRiroSHr+OwU")
+
+	script(src="./leaflet/leaflet.js", integrity="sha384-RFZC58YeKApoNsIbBxf4z6JJXmh+geBSgkCQXFyh+4tiFSJmJBt+2FbjxW7Ar16M")
+
+	style.
+		.versions-hidden-rows, .services-hidden-rows {
+			display: none;
+		}
+
+		#map { height: 700px; }
+
+block content
+	h1.h3 #{peerSummary.getpeerinfo.length} 
+		if (peerSummary.getpeerinfo.length == 1)
+			span Peer
+		else
+			span Peers
+	hr
+
+	ul.nav.nav-tabs.mb-3
+		li.nav-item
+			a.nav-link.active(data-toggle="tab", href="#tab-summary", role="tab") Summary
+		li.nav-item
+			a.nav-link(data-toggle="tab", href="#tab-json", role="tab") JSON
+
+	div.tab-content
+		div.tab-pane.active(id="tab-summary", role="tabpanel")
+			
+			if (peerIpSummary && peerIpSummary.ips)
+				div.mb-3(id="map")
+
+			div.row
+				div.col-md-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Top Versions
+							hr
+
+							table.table.table-striped.table-responsive-sm
+								thead
+									tr
+										th
+										th.data-header Version
+										th.data-header Count
+								tbody
+									each item, index in peerSummary.versionSummary
+										tr(class=(index >= 5 ? "versions-hidden-rows" : false))
+											td.data-cell.font-weight-bold #{index + 1}
+
+											td.data-cell.text-monospace #{item[0]}
+											td.data-cell.text-monospace #{item[1].toLocaleString()}
+
+				div.col-md-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Top Service Flags
+							hr
+
+							table.table.table-striped.table-responsive-sm
+								thead
+									tr
+										th
+										th.data-header Services
+										th.data-header Count
+								tbody
+									each item, index in peerSummary.servicesSummary
+										tr(class=(index >= 5 ? "services-hidden-rows" : false))
+											td.data-cell.font-weight-bold #{index + 1}
+
+											td.data-cell.text-monospace #{item[0]}
+											td.data-cell.text-monospace #{item[1].toLocaleString()}
+
+
+			div.row
+				if (peerSummary.networkTypeSummary)
+					div.col-md-6
+						div.card.shadow-sm.mb-3
+							div.card-body
+								h3.h6.mb-0 Network Types
+								hr
+
+								table.table.table-striped.table-responsive-sm
+									thead
+										tr
+											th
+											th.data-header Network Type
+											th.data-header Count
+									tbody
+										each item, index in peerSummary.networkTypeSummary
+											tr
+												td.data-cell.font-weight-bold #{index + 1}
+
+												td.data-cell.text-monospace #{item[0]}
+												td.data-cell.text-monospace #{item[1].toLocaleString()}
+
+				if (peerSummary.connectionTypeSummary)
+					div.col-md-6
+						div.card.shadow-sm.mb-3
+							div.card-body
+								h3.h6.mb-0 Connection Types
+								hr
+
+								table.table.table-striped.table-responsive-sm
+									thead
+										tr
+											th
+											th.data-header Connection Type
+											th.data-header Count
+									tbody
+										each item, index in peerSummary.connectionTypeSummary
+											tr
+												td.data-cell.font-weight-bold #{index + 1}
+
+												td.data-cell.text-monospace #{item[0]}
+												td.data-cell.text-monospace #{item[1].toLocaleString()}
+							
+
+			div.card.shadow-sm.mb-3
+				div.card-body
+					h3.h6.mb-0 #{peerSummary.getpeerinfo.length} 
+						if (peerSummary.getpeerinfo.length == 1)
+							span Peer
+						else
+							span Peers
+
+					hr
+
+					table.table.table-striped.table-responsive-sm.data-table.mt-4
+						thead
+							tr
+								th
+								th.data-header Version
+								th.data-header Address
+								th.data-header Services
+
+								if (peerIpSummary && peerIpSummary.ips)
+									th.data-header Location
+
+								th.data-header Last Send / Receive
+
+						tbody
+							each item, index in peerSummary.getpeerinfo
+								- var lastSendAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(item.lastsend) * 1000)))).format().replace("milliseconds", "ms");
+								- var lastRecvAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(item.lastrecv) * 1000)))).format().replace("milliseconds", "ms");
+
+								tr
+									th.data-cell #{index + 1}
+
+									td.data-cell.text-monospace #{item.subver}
+									td.data-cell.text-monospace #{item.addr}
+									td.data-cell.text-monospace #{item.services}
+
+									if (peerIpSummary.ips)
+										td.data-cell.text-monospace
+											- var ipAddr = item.addr.substring(0, item.addr.lastIndexOf(":"));
+											if (peerIpSummary.ips && peerIpSummary.ips.includes(ipAddr))
+												- var ipDetails = peerIpSummary.detailsByIp[ipAddr];
+												if (ipDetails)
+													if (ipDetails.city)
+														span #{ipDetails.city}, 
+													if (ipDetails.region_name)
+														span #{ipDetails.region_name}, 
+													if (ipDetails.country_name)
+														span #{ipDetails.country_name}
+											else
+												span ?
+
+											- var ipAddr = null;
+
+									td.data-cell.text-monospace #{lastSendAgo} / #{lastRecvAgo}
+			
+
+
+		div.tab-pane(id="tab-json", role="tabpanel")
+			each item, index in peerSummary.getpeerinfo
+				div.border-bottom.p-1
+					a(href="javascript:void(0)" onclick=("javascript:var peer = document.getElementById('peerinfo_" + index + "'); peer.style.display = peer.style.display === 'none' ? '' : 'none';"))
+						i.fas.fa-plus-circle 
+
+					span.text-monospace  #{item.addr}
+
+				div.p-3(style="display: none;", id=("peerinfo_" + index))
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h6.mb-0 Peer Details
+							hr
+					
+							div.highlight
+								pre
+									code.json.bg-light #{JSON.stringify(item, null, 4)}
+
+					if (peerIpSummary && peerIpSummary.detailsByIp && peerIpSummary.detailsByIp[item.addr.substring(0, item.addr.lastIndexOf(":"))])
+						div.card.shadow-sm.mb-3
+							div.card-body
+								h6.mb-0 IP Geo-Location Info
+								hr
+
+								div.highlight
+									pre
+										code.json.bg-light #{JSON.stringify(peerIpSummary.detailsByIp[item.addr.substring(0, item.addr.lastIndexOf(":"))], null, 4)}
+
+	
+block endOfBody
+	script(src="./js/jquery.dataTables.min.js", integrity="sha384-rgWRqC0OFPisxlUvl332tiM/qmaNxnlY46eksSZD84t+s2vZlqGeHrncwIRX7CGp")
+	script(src="./js/dataTables.bootstrap4.min.js", integrity="sha384-uiSTMvD1kcI19sAHJDVf68medP9HA2E2PzGis9Efmfsdb8p9+mvbQNgFhzii1MEX")
+
+	script.
+		$(document).ready(function() {
+			$(".data-table").DataTable();
+		});
+
+	if (peerIpSummary && peerIpSummary.ips)
+		script.
+			var mymap = L.map('map').setView([21.505, -0.09], 3);
+
+			L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+				maxZoom: 18,
+				attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+					'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+					'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+				id: 'mapbox.streets'
+			}).addTo(mymap);
+
+			/*L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+			}).addTo(mymap);*/
+
+			$(document).ready(function() {
+				window.dispatchEvent(new Event('resize'));
+			});
+
+		each ipAddress, index in peerIpSummary.ips
+			- var ipDetails = peerIpSummary.detailsByIp[ipAddress];
+			if (ipDetails && ipDetails.latitude && ipDetails.longitude)
+				- var ipDetailsPopupHtml = "<b>" + ipAddress + "</b><br>";
+				if (ipDetails.city)
+					- var ipDetailsPopupHtml = ipDetailsPopupHtml + ipDetails.city + ", ";
+
+				if (ipDetails.region_name)
+					- var ipDetailsPopupHtml = ipDetailsPopupHtml + ipDetails.region_name + ", ";
+
+				if (ipDetails.country_name)
+					- var ipDetailsPopupHtml = ipDetailsPopupHtml + ipDetails.country_name + " ";
+
+				script L.marker([#{ipDetails.latitude}, #{ipDetails.longitude}]).addTo(mymap).bindPopup("!{ipDetailsPopupHtml}");
+		
+
+

@@ -129,7 +129,7 @@ block content
 												if (getblockchaininfo)
 													span Block ##{(getblockchaininfo.blocks - firstSeenTransaction.confirmations).toLocaleString()}
 												else
-													a(href=("./block/" + firstSeenTransaction.blockhash)) #{firstSeenTransaction.blockhash}
+													a(href=`./block/${firstSeenTransaction.blockhash}`) #{firstSeenTransaction.blockhash}
 
 												br
 
@@ -264,11 +264,11 @@ block content
 												span Oldest First
 
 										div.dropdown-menu.dropdown-menu-right
-											a.dropdown-item(href=("./address/" + address))
+											a.dropdown-item(href=`./address/${address}`)
 												if (sort == "desc")
 													i.fa.fa-check 
 												span  Newest First
-											a.dropdown-item(href=("./address/" + address + "?sort=asc"))
+											a.dropdown-item(href=`./address/${address}?sort=asc`)
 												if (sort != "desc")
 													i.fa.fa-check 
 												span  Oldest First
@@ -292,7 +292,7 @@ block content
 							if (true)
 								if (addressApiError && addressApiError.error && addressApiError.error.code && addressApiError.error.code == -32600)
 									span Failed to retrieve transaction history from ElectrumX. See 
-									a(href="https://github.com/NewYorkCoinNYC/nyc-rpc-explorer/issues/67") Issue #67
+									a(href="https://github.com/janoside/nyc-rpc-explorer/issues/67") Issue #67
 									span  for more information.
 
 
@@ -308,13 +308,24 @@ block content
 
 										else if (err == "No address API configured")
 											span No address API is configured. See 
-											a(href="https://github.com/NewYorkCoinNYC/nyc-rpc-explorer/blob/master/.env-sample") the example configuration file
+											a(href="https://github.com/janoside/nyc-rpc-explorer/blob/master/.env-sample") the example configuration file
 											span  for help setting up an address API if desired.
 
 										else
 											span.text-danger Error retrieving transaction history (##{errIndex + 1})
 											pre
 												code.json #{JSON.stringify(err, null, 4)}
+
+								else if (!global.txindexAvailable && transactions.length == 0)
+									table.table.table-striped
+										each txid, txidIndex in txids
+											tr
+												td.text-right
+													small.text-muted #{(txidIndex + offset + 1).toLocaleString()}
+												td.text-monospace
+													- var blockHeight = addressDetails.blockHeightsByTxid[txid];
+													- var blockHeightParam = blockHeight > 0 ? `@${blockHeight}` : "";
+													a(href=`./tx/${txid}${blockHeightParam}`) #{txid}
 
 								else if (transactions.length == 0)
 									span No transactions found
@@ -334,11 +345,11 @@ block content
 											div.row
 												div.col-md-8
 													if (tx && tx.txid)
-														a(href=("./tx/" + tx.txid)) #{tx.txid}
+														a(href=`./tx/${tx.txid}`) #{tx.txid}
 
 														if (global.specialTransactions && global.specialTransactions[tx.txid])
 															span  
-															a(data-toggle="tooltip", title=(coinConfig.name + " Fun! See transaction for details"))
+															a(data-toggle="tooltip", title=`${coinConfig.name} Fun! See transaction for details`)
 																i.fas.fa-certificate.text-primary
 
 													br

@@ -20,7 +20,7 @@ html(lang="en")
 		
 		link(rel='stylesheet', href='./css/styling.css')
 
-		link(rel="icon", type="image/png", href=("./img/logo/" + config.coin.toLowerCase() + ".png"))
+		link(rel="icon", type="image/png", href=`./img/logo/${config.coin.toLowerCase()}.png`)
 
 		include includes/debug-overrides.pug
 
@@ -40,7 +40,7 @@ html(lang="en")
 						if (coinConfig.siteTitlesByNetwork && coinConfig.siteTitlesByNetwork[activeBlockchain])
 							span #{coinConfig.siteTitlesByNetwork[activeBlockchain]}
 						else
-							span Newyorkcoin Explorer
+							span NewYorkCoin Explorer
 						
 				button.navbar-toggler.navbar-toggler-right(type="button", data-toggle="collapse", data-target="#navbarNav", aria-label="collapse navigation")
 					span.navbar-toggler-icon
@@ -97,7 +97,8 @@ html(lang="en")
 								a.nav-link.dropdown-toggle(href="javascript:void(0)", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") 
 									span  Admin Tools
 								div.dropdown-menu.dropdown-menu-right.shadow(aria-label="Admin Tools Items")
-									a.dropdown-item(href="./admin") Admin Dashboard
+									a.dropdown-item(href="./admin/dashboard") Dashboard
+									a.dropdown-item(href="./admin/stats") Stats
 
 							li.nav-item.dropdown
 								a.nav-link.dropdown-toggle(href="javascript:void(0)", id="navbarDropdown", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") 
@@ -107,7 +108,7 @@ html(lang="en")
 										span.dropdown-header Currency Units
 										each item in coinConfig.currencyUnits
 											if (item.type == "native" || (config.queryExchangeRates && !config.privacyMode))
-												a.dropdown-item(href=("./changeSetting?name=currencyFormatType&value=" + item.values[0]))
+												a.dropdown-item(href=`./changeSetting?name=currencyFormatType&value=${item.values[0]}`)
 													each valueName in item.values
 														if (currencyFormatType == valueName)
 															i.fas.fa-check
@@ -172,16 +173,16 @@ html(lang="en")
 						dl
 							dt Source
 							dd
-								a(href="https://github.com/NewYorkCoinNYC/nyc-rpc-explorer") github.com/janoside/nyc-rpc-explorer
+								a(href="https://github.com/janoside/nyc-rpc-explorer") github.com/janoside/nyc-rpc-explorer
 								
 								if (global.sourcecodeProjectMetadata)
 									div.mt-2
-										a.btn.btn-primary.btn-sm.mr-3.mb-1.text-decoration-none(href="https://github.com/NewYorkCoinNYC/nyc-rpc-explorer")
+										a.btn.btn-primary.btn-sm.mr-3.mb-1.text-decoration-none(href="https://github.com/janoside/nyc-rpc-explorer")
 											i.fas.fa-star.mr-2
 											span.mr-2 Star 
 											span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.stargazers_count}
 
-										a.btn.btn-primary.btn-sm.mr-3.mb-1.text-decoration-none(href="https://github.com/NewYorkCoinNYC/nyc-rpc-explorer/fork")
+										a.btn.btn-primary.btn-sm.mr-3.mb-1.text-decoration-none(href="https://github.com/janoside/nyc-rpc-explorer/fork")
 											i.fas.fa-code-branch.mr-2
 											span.mr-2 Fork 
 											span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.forks_count}
@@ -194,7 +195,7 @@ html(lang="en")
 								if (sourcecodeVersion)
 									br
 									span commit: 
-										a(href=("https://github.com/NewYorkCoinNYC/nyc-rpc-explorer/commit/" + sourcecodeVersion)) #{sourcecodeVersion}
+										a(href=`https://github.com/janoside/nyc-rpc-explorer/commit/${sourcecodeVersion}`) #{sourcecodeVersion}
 								
 								br
 								span released: #{sourcecodeDate}
@@ -212,7 +213,7 @@ html(lang="en")
 									
 									div.mt-2
 										- var demoSites = [];
-										- demoSites.push({url:"https://explorer.nyc21.org", logoUrl:"./img/logo/nyc.svg", title:"Newyorkcoin Explorer"});
+										- demoSites.push({url:"https://explorer.nyc21.org", logoUrl:"./img/logo/nyc.svg", title:"NewYorkCoin Explorer"});
 										- demoSites.push({url:"https://testnet.nyc21.org", logoUrl:"./img/logo/tnyc.svg", title:"Testnet Explorer"});
 										- demoSites.push({url:"https://signet.nyc21.org", logoUrl:"./img/logo/signet.svg", title:"Signet Explorer"});
 
@@ -237,7 +238,7 @@ html(lang="en")
 
 		script(src="./js/highlight.min.js", integrity="sha384-xLrpH5gNLD6HMLgeDH1/p4FXigQ8T9mgNm+EKtCSXL0OJ5i1bnSi57dnwFuUMM9/")
 
-		script(src="./js/site.js", integrity="sha384-weZIj2Lafb8Qt+U1gwVB/HgL70q/yMT9Vo4NHBqqx67KMqGlMon2iv1WmZFiTKjw")
+		script(src="./js/site.js", integrity="sha384-VT6URWBBaQ+gBHYtXUO3QP6Rq8DnvRYIWx6nGW5l5u/usDvbitq+MkHc4ZxVTqzT")
 		
 		script.
 			$(document).ready(function() {

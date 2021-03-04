@@ -18,8 +18,8 @@ const args = require('meow')(`
 
 	  -b, --newyorkcoind-uri <uri>	   connection URI for newyorkcoind rpc (overrides the options below)
 	  -H, --newyorkcoind-host <host>	 hostname for newyorkcoind rpc [default: 127.0.0.1]
-	  -P, --newyorkcoind-port <port>	 port for newyorkcoind rpc [default: 18823]
-	  -c, --newyorkcoind-cookie <path>   path to newyorkcoind cookie file [default: ~/.newyorkc/.cookie]
+	  -P, --newyorkcoind-port <port>	 port for newyorkcoind rpc [default: 8332]
+	  -c, --newyorkcoind-cookie <path>   path to newyorkcoind cookie file [default: ~/.newyorkcoin/.cookie]
 	  -u, --newyorkcoind-user <user>	 username for newyorkcoind rpc [default: none]
 	  -w, --newyorkcoind-pass <pass>	 password for newyorkcoind rpc [default: none]
 
@@ -43,15 +43,15 @@ const args = require('meow')(`
 	  -v, --version				  output version number
 
 	Examples
-	  $ nyc-rpc-explorer --port 8080 --newyorkcoind-port 18823 --newyorkcoind-cookie ~/.newyorkc/regtest/.cookie
-	  $ nyc-rpc-explorer -p 8080 -P 18823 -c ~/.newyorkc/regtest.cookie
+	  $ nyc-rpc-explorer --port 8080 --newyorkcoind-port 18443 --newyorkcoind-cookie ~/.newyorkcoin/regtest/.cookie
+	  $ nyc-rpc-explorer -p 8080 -P 18443 -c ~/.newyorkcoin/regtest.cookie
 
 	Or using connection URIs
-	  $ nyc-rpc-explorer -b newyorkcoin://bob:myPassword@127.0.0.1:18823/
-	  $ nyc-rpc-explorer -b newyorkcoin://127.0.0.1:18823/?cookie=$HOME/.newyorkc/regtest/.cookie
+	  $ nyc-rpc-explorer -b newyorkcoin://bob:myPassword@127.0.0.1:18443/
+	  $ nyc-rpc-explorer -b newyorkcoin://127.0.0.1:18443/?cookie=$HOME/.newyorkcoin/regtest/.cookie
 
 	All options may also be specified as environment variables
-	  $ NYCEXP_PORT=8080 NYCEXP_NEWYORKCOIND_PORT=18823 NYCEXP_NEWYORKCOIND_COOKIE=~/.newyorkc/regtest/.cookie nyc-rpc-explorer
+	  $ NYCEXP_PORT=8080 NYCEXP_NEWYORKCOIND_PORT=18443 NYCEXP_NEWYORKCOIND_COOKIE=~/.newyorkcoin/regtest/.cookie nyc-rpc-explorer
 
 
 `, {
